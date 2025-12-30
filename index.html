@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Happy New Year Earthworm 🪱</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif}
+body{background:#000;overflow:hidden;color:#fff}
+
+/* Videos */
+video{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  z-index:-2;
+}
+.blur{filter:blur(10px) brightness(0.4)}
+
+/* Center */
+.center{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  text-align:center;
+}
+
+/* Login */
+#login h1{
+  font-size:42px;
+  text-shadow:0 0 30px #ff4d6d;
+}
+#login input{
+  padding:14px;
+  border:none;
+  border-radius:10px;
+  width:240px;
+  margin-top:18px;
+}
+#login button{
+  padding:14px 36px;
+  margin-top:18px;
+  border:none;
+  border-radius:30px;
+  background:linear-gradient(45deg,#ff4d6d,#ff758f);
+  color:#fff;
+  font-size:17px;
+  cursor:pointer;
+  box-shadow:0 0 25px #ff4d6d;
+}
+
+/* Countdown */
+#countdown span{
+  font-size:34px;
+  margin:0 10px;
+  text-shadow:0 0 15px #fff;
+}
+
+/* Popup */
+.popup{
+  background:rgba(0,0,0,0.85);
+  padding:35px;
+  border-radius:18px;
+  box-shadow:0 0 45px rgba(255,77,109,0.7);
+  animation:zoom 0.6s ease;
+}
+@keyframes zoom{
+  from{transform:scale(0.3);opacity:0}
+  to{transform:scale(1);opacity:1}
+}
+.popup button{
+  padding:12px 30px;
+  margin:12px;
+  border:none;
+  border-radius:25px;
+  font-size:16px;
+  cursor:pointer;
+}
+
+/* Message */
+#message{
+  padding:45px;
+  background:rgba(0,0,0,0.6);
+  border-radius:25px;
+  max-width:650px;
+  animation:fadeUp 2s ease;
+  box-shadow:0 0 50px rgba(255,255,255,0.3);
+}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(40px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.glow{
+  text-shadow:0 0 25px #ff8fa3,0 0 50px #ff4d6d;
+}
+
+/* Ending */
+#ending{
+  font-size:42px;
+  animation:fadeUp 3s ease;
+}
+
+/* Watermark */
+.watermark{
+  position:fixed;
+  bottom:12px;
+  right:15px;
+  font-size:12px;
+  opacity:0.6;
+  display:none;
+}
+.glow-wm{
+  display:block;
+  animation:wmGlow 2.5s ease-in-out infinite;
+  text-shadow:0 0 10px #ff8fa3,0 0 25px #ff4d6d;
+}
+@keyframes wmGlow{
+  0%,100%{opacity:0.4}
+  50%{opacity:1}
+}
+.midnight-glow{
+  animation:pulse 2s infinite;
+}
+
+@keyframes pulse{
+  0%{box-shadow:0 0 10px #ff4d6d}
+  50%{box-shadow:0 0 40px #ff4d6d}
+  100%{box-shadow:0 0 10px #ff4d6d}
+}
+</style>
+</head>
+
+<body>
+
+<!-- Videos -->
+<video id="loginVideo" autoplay muted loop class="blur">
+  <source src="bg-login.mp4">
+</video>
+<video id="mainVideo" autoplay muted loop style="display:none">
+  <source src="bg-main.mp4">
+</video>
+<video id="messageVideo" autoplay muted loop style="display:none">
+  <source src="bg-message.mp4">
+</video>
+<video id="finalVideo" loop playsinline style="display:none">
+  <source src="final-video.mp4">
+</video>
+
+<!-- Music -->
+<audio id="music" loop>
+  <source src="snowman.mp3">
+</audio>
+
+<!-- Login -->
+<div class="center" id="login">
+  <h1 class="glow">Welcome Earthworm 🪱</h1>
+  <p>Enter the secret password</p>
+  <input type="password" id="password" placeholder="Password">
+  <br>
+  <button id="loginBtn">Unlock 💖</button>
+</div>
+
+<!-- New Year -->
+<div class="center" id="newyear" style="display:none">
+  <h1 class="glow">🎆 Happy New Year 🎆</h1>
+  <div id="countdown"></div>
+</div>
+
+<!-- Popup 1 -->
+<div class="center" id="popup" style="display:none">
+  <div class="popup">
+    <h2>💌 A message from Kanhaa</h2>
+    <p>Would you like to open it?</p>
+    <button id="noBtn" style="background:#444;color:white">No</button>
+    <button id="yesBtn" style="background:#ff4d6d;color:white">Yes</button>
+  </div>
+</div>
+
+<!-- Message -->
+<div class="center" id="final" style="display:none">
+  <div id="message">
+    <h1 class="glow" id="typeText"></h1><br>
+    <p id="typePara"></p>
+  </div>
+</div>
+
+<!-- Popup 2 -->
+<div class="center" id="popup2" style="display:none">
+  <div class="popup">
+    <h2>🎇 Wanna go ahead together?</h2>
+    <button id="stayBtn" style="background:#444;color:white">No</button>
+    <button id="goBtn" style="background:#ff4d6d;color:white">Yes</button>
+  </div>
+</div>
+
+<!-- Ending -->
+<div class="center" id="ending" style="display:none">
+  <div class="glow">✨ And this story is just getting started… ✨</div>
+</div>
+
+<!-- Watermark -->
+<div class="watermark" id="wm">Designed with ❤️ by Alekh</div>
+
+<script>
+/* ELEMENTS */
+const loginDiv = document.getElementById("login");
+const loginBtn = document.getElementById("loginBtn");
+const passwordInput = document.getElementById("password");
+const loginVideo = document.getElementById("loginVideo");
+const mainVideo = document.getElementById("mainVideo");
+const messageVideo = document.getElementById("messageVideo");
+const finalVideo = document.getElementById("finalVideo");
+const newyear = document.getElementById("newyear");
+const popup = document.getElementById("popup");
+const popup2 = document.getElementById("popup2");
+const finalMsg = document.getElementById("final");
+const music = document.getElementById("music");
+const countdown = document.getElementById("countdown");
+const noBtn = document.getElementById("noBtn");
+const yesBtn = document.getElementById("yesBtn");
+const stayBtn = document.getElementById("stayBtn");
+const goBtn = document.getElementById("goBtn");
+const typeText = document.getElementById("typeText");
+const typePara = document.getElementById("typePara");
+const ending = document.getElementById("ending");
+const wm = document.getElementById("wm");
+
+/* LOGIN */
+loginBtn.onclick = () => {
+  if(passwordInput.value === "earthworm"){
+    loginDiv.style.display="none";
+    loginVideo.style.display="none";
+    mainVideo.style.display="block";
+    newyear.style.display="block";
+    music.play();
+    startCountdown();
+    fireworks();
+    setTimeout(()=>popup.style.display="block",7000);
+  } else {
+    alert("Wrong password 🥺");
+  }
+};
+
+/* COUNTDOWN */
+function startCountdown(){
+ const end = new Date("Jan 1, 2026 00:00:00").getTime();
+  setInterval(()=>{
+    let now=new Date().getTime();
+    let d=end-now;
+    let h=Math.floor((d%(1000*60*60*24))/(1000*60*60));
+    let m=Math.floor((d%(1000*60*60))/(1000*60));
+    let s=Math.floor((d%(1000*60))/1000);
+    document.getElementById("countdown").innerHTML=`<span>${h}h</span><span>${m}m</span><span>${s}s</span>`;
+  },1000);
+}
+/* FIREWORKS */
+function fireworks(){
+  setInterval(()=>{
+    confetti({
+      particleCount:300,
+      spread:360,
+      shapes:["heart","circle"],
+      origin:{x:Math.random(),y:Math.random()*0.6}
+    });
+  },900);
+}
+
+/* ESCAPING NO */
+noBtn.onmouseover = ()=>{
+  noBtn.style.position="absolute";
+  noBtn.style.left = Math.random()*80 + "%";
+  noBtn.style.top  = Math.random()*80 + "%";
+};
+
+/* YES */
+yesBtn.onclick = ()=>{
+  navigator.vibrate?.([200,100,200]);
+  popup.style.display="none";
+  newyear.style.display="none";
+  mainVideo.style.display="none";
+  messageVideo.style.display="block";
+  finalMsg.style.display="block";
+  typeWriter();
+  loveBlast();
+  setTimeout(()=>popup2.style.display="block",12000);
+};
+
+/* TYPEWRITER */
+function typeWriter(){
+  typeText.innerHTML="";
+  typePara.innerHTML="";
+  const title="Happy New Year, my favorite person 🤍";
+  const msg="Life feels lighter and happier because you’re in it.\n\nThank you for choosing me and standing by me.\n\nI’m always here 🫶✨";
+  let i=0,j=0;
+  let t=setInterval(()=>{
+    if(i<title.length){
+      typeText.innerHTML+=title[i++];
+    } else if(j<msg.length){
+      typePara.innerHTML+=msg[j++].replace("\n","<br>");
+    } else clearInterval(t);
+  },60);
+}
+
+/* LOVE BLAST */
+function loveBlast(){
+  for(let i=0;i<6;i++){
+    setTimeout(()=>confetti({particleCount:200,spread:360,shapes:["heart"]}),i*500);
+  }
+}
+
+/* FINAL */
+goBtn.onclick = ()=>{
+  popup2.style.display="none";
+  finalMsg.style.display="none";
+  music.pause();
+
+  finalVideo.style.display="block";
+  finalVideo.currentTime = 0;
+  finalVideo.muted = false;
+
+  finalVideo.play().catch(()=>{
+    console.log("Autoplay blocked, user interaction required");
+  });
+
+  setTimeout(()=>{
+    ending.style.display="block";
+    wm.classList.add("glow-wm");
+  },5000);
+};
+stayBtn.onclick = ()=> popup2.style.display="none";
+</script>
+
+</body>
+</html>
